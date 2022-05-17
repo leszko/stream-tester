@@ -14,7 +14,7 @@ require (
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/gosuri/uilive v0.0.3 // indirect
 	github.com/gosuri/uiprogress v0.0.1
-	github.com/livepeer/go-api-client v0.1.3-0.20220517051718-40e4aa4eed17
+	github.com/livepeer/go-api-client v0.1.3-0.20220517101610-dc7a2b116d70
 	github.com/livepeer/joy4 v0.1.2-0.20210601043311-c1b885884cc7
 	github.com/livepeer/leaderboard-serverless v1.0.0
 	github.com/livepeer/livepeer-data v0.4.11
