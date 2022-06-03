@@ -140,7 +140,9 @@ func main() {
 			broadcasterReady <- struct{}{}
 		}()
 	} else {
-		broadcasterReady <- struct{}{}
+		go func() {
+			broadcasterReady <- struct{}{}
+		}()
 	}
 
 	metricsURL := defaultAddr(*metrics, defaultHost, prometheusPort)
