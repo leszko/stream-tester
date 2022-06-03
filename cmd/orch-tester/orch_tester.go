@@ -184,7 +184,7 @@ func main() {
 	testers.Bucket = *gsBucket
 	testers.CredsJSON = *gsKey
 
-	//refreshWait := 70 * time.Second
+	refreshWait := 70 * time.Second
 
 	var summary statsSummary
 	start = time.Now()
@@ -194,7 +194,7 @@ func main() {
 	glog.Infof("Broadcaster is ready, starting to test orchestrators")
 
 	for _, o := range orchestrators {
-		//time.Sleep(refreshWait)
+		time.Sleep(refreshWait)
 
 		req := &streamerModel.StartStreamsReq{
 			Host:            host,
