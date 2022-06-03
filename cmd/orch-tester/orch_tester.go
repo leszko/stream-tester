@@ -11,6 +11,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/livepeer/go-livepeer/cmd/livepeer/starter"
+	"github.com/livepeer/go-livepeer/common"
 	"github.com/livepeer/joy4/format"
 	"github.com/livepeer/stream-tester/internal/server"
 	"io/ioutil"
@@ -108,6 +109,14 @@ func main() {
 	broadcasterReady := make(chan struct{})
 	if *broadcaster == "" {
 		glog.Info("Starting embedded broadcaster service")
+		common.SegUploadTimeoutMultiplier = 4.0
+		common.SegmentUploadTimeout = 8 * time.Second
+		common.HTTPDialTimeout = 8 * time.Second
+		common.SegHttpPushTimeoutMultiplier = 4.0
+
+		// Disable caching for Orchestrator Discovery Webhook
+		common.WebhookDiscoveryRefreshInterval = 0
+
 		host = defaultHost
 		cfg := starter.DefaultLivepeerConfig()
 		cfg.Network = network
