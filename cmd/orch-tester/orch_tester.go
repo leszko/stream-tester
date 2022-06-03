@@ -62,6 +62,7 @@ func main() {
 	subgraph := flag.String("subgraph", "https://api.thegraph.com/subgraphs/name/livepeer/livepeer-canary", "Livepeer subgraph URL")
 	network := flag.String("network", "arbitrum-one-rinkeby", "Network to connect to")
 	ethUrl := flag.String("ethUrl", "https://rinkeby.arbitrum.io/rpc", "Ethereum node JSON-RPC URL")
+	datadir := flag.String("datadir", "", "Directory that data is stored in")
 	ethPassword := flag.String("ethPassword", "", "Password for existing Eth account address")
 	maxTicketEV := flag.String("maxTicketEV", "3000000000000", "The maximum acceptable expected value for PM tickets")
 	maxPricePerUnit := flag.Int("maxPricePerUnit", 0, "The maximum transcoding price (in wei) per 'pixelsPerUnit' a broadcaster is willing to accept. If not set explicitly, broadcaster is willing to accept ANY price")
@@ -98,13 +99,16 @@ func main() {
 		}()
 	}
 
+	host := *broadcaster
 	if *broadcaster == "" {
 		glog.Info("Starting embedded broadcaster service")
+		host = defaultHost
 		cfg := starter.DefaultLivepeerConfig()
 		cfg.Network = network
 		cfg.MaxSessions = intPointer(200)
 		cfg.OrchWebhookURL = stringPointer("http://127.0.0.1:7934/orchestrators")
 		cfg.EthUrl = ethUrl
+		cfg.Datadir = datadir
 		cfg.Monitor = boolPointer(true)
 		cfg.EthPassword = ethPassword
 		cfg.LocalVerify = boolPointer(false)
@@ -149,16 +153,16 @@ func main() {
 	testers.Bucket = *gsBucket
 	testers.CredsJSON = *gsKey
 
-	refreshWait := 70 * time.Second
+	//refreshWait := 70 * time.Second
 
 	var summary statsSummary
 	start = time.Now()
 
 	for _, o := range orchestrators {
-		time.Sleep(refreshWait)
+		//time.Sleep(refreshWait)
 
 		req := &streamerModel.StartStreamsReq{
-			Host:            *broadcaster,
+			Host:            host,
 			RTMP:            uint16(rtmpUint),
 			Media:           uint16(mediaUint),
 			Repeat:          uint(*repeat),
