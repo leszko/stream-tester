@@ -11,6 +11,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/livepeer/go-livepeer/cmd/livepeer/starter"
+	"github.com/livepeer/joy4/format"
 	"github.com/livepeer/stream-tester/internal/server"
 	"io/ioutil"
 	"log"
@@ -47,6 +48,10 @@ const httpTimeout = 8 * time.Second
 const numSegments = 15
 
 var start time.Time
+
+func init() {
+	format.RegisterAll()
+}
 
 func main() {
 	flag.Set("logtostderr", "true")
@@ -100,6 +105,7 @@ func main() {
 	}
 
 	host := *broadcaster
+	broadcasterReady := make(chan struct{})
 	if *broadcaster == "" {
 		glog.Info("Starting embedded broadcaster service")
 		host = defaultHost
@@ -121,6 +127,20 @@ func main() {
 		go func() {
 			starter.StartLivepeer(ctx, cfg)
 		}()
+		go func() {
+			statusEndpoint := fmt.Sprintf("http://%s/status", *cfg.CliAddr)
+			var statusCode int
+			for statusCode != 200 {
+				time.Sleep(200 * time.Millisecond)
+				resp, err := http.Get(statusEndpoint)
+				if err == nil {
+					statusCode = resp.StatusCode
+				}
+			}
+			broadcasterReady <- struct{}{}
+		}()
+	} else {
+		broadcasterReady <- struct{}{}
 	}
 
 	metricsURL := defaultAddr(*metrics, defaultHost, prometheusPort)
@@ -157,6 +177,10 @@ func main() {
 
 	var summary statsSummary
 	start = time.Now()
+
+	glog.Infof("Waiting for broadcaster to be ready")
+	<-broadcasterReady
+	glog.Infof("Broadcaster is ready, starting to test orchestrators")
 
 	for _, o := range orchestrators {
 		//time.Sleep(refreshWait)
