@@ -35,4 +35,6 @@ jobs:
         run: go get -v -t -d ./...
 
       - name: Trigger test suite
-        run: go test ./... -v
+        run: |
+          # Skip orch-tester, because we it's not released
+          go test $(go list ./... | grep -v 'orch-tester') -v
